@@ -24,11 +24,17 @@ class AddProductController extends GetxController {
   ProductEntity? product;
   @override
   void onInit() {
-    fetchCategories();
-    final args = Get.arguments;
+    final args = Get.arguments as Map<String, dynamic>?;
+    final cachedCategories = args?['categories'] as List<CategoryEntity>?;
+    if (cachedCategories != null && cachedCategories.isNotEmpty) {
+      categories.assignAll(cachedCategories);
+    }
     product = args?['product'];
     if (product != null) {
       _fillData(product!);
+    }
+    if (categories.isEmpty) {
+      fetchCategories();
     }
     super.onInit();
   }

@@ -36,7 +36,7 @@ class HomeView extends GetWidget<HomeController> {
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async {
-              // _cubit.onRefresh();
+              await controller.refreshProducts();
             },
             child: _buildProductContent(),
           ),
@@ -206,6 +206,9 @@ class HomeView extends GetWidget<HomeController> {
 
       if (isLoading && controller.products.isEmpty) {
         return const Center(child: CircularProgressIndicator());
+      }
+      if (!isLoading && controller.products.isEmpty) {
+        return const Center(child: Text('Không có sản phẩm nào'));
       }
 
       return ListView.builder(

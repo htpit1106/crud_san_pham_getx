@@ -13,7 +13,6 @@ import 'package:crud_getx_demo/navigator/app_page.dart';
 import 'package:crud_getx_demo/navigator/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/src/rx_workers/utils/debouncer.dart';
 
 class HomeController extends GetxController {
   final ProductRepository productRepos;
@@ -41,12 +40,15 @@ class HomeController extends GetxController {
   Timer? _searchDebounce;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-
-    await fetchCategories();
-    await fetchProducts(reset: true);
     scrollController.addListener(_onScroll);
+    init();
+  }
+
+  Future<void> init() async {
+    fetchCategories();
+    await fetchProducts(reset: true);
   }
 
   @override
@@ -212,7 +214,7 @@ class HomeController extends GetxController {
   Future<void> onPressEditProduct(ProductEntity product) async {
     final result = await Get.toNamed(
       AppRoutes.addProduct,
-      arguments: {'product': product},
+      arguments: {'product': product, 'categories': categories.toList()},
     );
     if (result == true) {
       fetchProducts(reset: true);
@@ -225,7 +227,7 @@ class HomeController extends GetxController {
       textConfirm: 'Đăng xuất',
       textCancel: 'Hủy',
       onConfirm: () async {
-        SecureStorageHelper.instance.clearAccessToken();
+        await SecureStorageHelper.instance.clearAccessToken();
         authController.markUnauthenticated();
         Get.offAllNamed(AppRoutes.login);
       },
@@ -238,5 +240,11 @@ class HomeController extends GetxController {
     _searchDebounce = Timer(const Duration(milliseconds: 300), () {
       fetchProducts(reset: true);
     });
+  }
+
+  Future<void> refreshProducts() async {
+    isRefreshing.value = true;
+    await fetchProducts(reset: true);
+    isRefreshing.value = false;
   }
 }

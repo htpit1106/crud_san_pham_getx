@@ -34,15 +34,16 @@ class SplashController extends GetxController {
     final accessToken = await SecureStorageHelper.instance.getToken();
     if (accessToken == null) return false;
     final result = await Get.find<ProductRepository>().getProducts();
+    var isLoggedIn = false;
     result.fold(
       (failure) {
         AppNotifier.showError(failure.message);
       },
       (response) {
-        return true;
+        isLoggedIn = true;
       },
     );
-    return false;
+    return isLoggedIn;
   }
 
   Future<void> _ensureSplashSplashTime() async {

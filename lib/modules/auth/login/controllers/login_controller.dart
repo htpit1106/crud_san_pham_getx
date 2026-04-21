@@ -37,10 +37,10 @@ class LoginController extends GetxController {
         Get.find<AuthController>().markUnauthenticated();
         AppNotifier.showError(failure.message);
       },
-      (response) {
+      (response) async {
         isLoading.value = LoadStatus.success;
         final token = response.data;
-        SecureStorageHelper.instance.saveAccessToken(token?.accessToken);
+        await SecureStorageHelper.instance.saveAccessToken(token?.accessToken);
         Get.find<AuthController>().markAuthenticated();
         Get.offAllNamed(AppRoutes.home);
       },

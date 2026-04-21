@@ -34,10 +34,6 @@ class MyApp extends StatelessWidget {
             AuthRepositoryImpl(apiClient: apiClient),
             permanent: true,
           );
-          Get.put<ProductRepository>(
-            ProductRepositoryImpl(apiClient: apiClient),
-            permanent: true,
-          );
         }),
       ),
     );
