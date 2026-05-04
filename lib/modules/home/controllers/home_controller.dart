@@ -173,7 +173,7 @@ class HomeController extends GetxController {
     selectedCategoryId.value = categoryId;
     _categoryDebounce?.cancel();
     _categoryDebounce = Timer(const Duration(milliseconds: 150), () {
-      fetchProducts();
+      fetchProducts(reset: false);
     });
   }
 
@@ -184,14 +184,18 @@ class HomeController extends GetxController {
       textCancel: 'Hủy',
 
       onConfirm: () async {
+        loadProductStatus.value = LoadStatus.loading;
+
         final result = await productRepos.deleteProduct(id);
+        loadProductStatus.value = LoadStatus.success;
         result.fold(
           (failure) {
             AppNotifier.showError(failure.message);
           },
           (response) {
             AppNotifier.showSuccess('Xóa sản phẩm thành công');
-            fetchProducts();
+            // delete product in list
+            products.removeWhere((element) => element.id == id);
           },
         );
       },
@@ -203,14 +207,15 @@ class HomeController extends GetxController {
             scrollController.position.maxScrollExtent - 200 &&
         hasMore.value &&
         loadProductStatus.value != LoadStatus.loading) {
-      fetchProducts();
+      fetchProducts(reset: false);
     }
   }
 
   Future<void> onPressAddProduct() async {
     final result = await Get.toNamed(AppRoutes.addProduct);
-    if (result == true) {
-      fetchProducts();
+    // result is new product that just added
+    if (result is ProductEntity) {
+      products.insert(0, result);
     }
   }
 
@@ -254,7 +259,8 @@ class HomeController extends GetxController {
   GlobalKey getItemKey(int id) {
     return itemKeys.putIfAbsent(id, () => GlobalKey());
   }
-  void onAddProductToCart(){
+
+  void onAddProductToCart() {
     selectedCount.value += 1;
   }
 }

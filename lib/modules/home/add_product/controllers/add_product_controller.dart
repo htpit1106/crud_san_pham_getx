@@ -97,7 +97,7 @@ class AddProductController extends GetxController {
       },
       (success) {
         AppNotifier.showSuccess('Thêm sản phẩm thành công');
-        Get.back(result: true);
+        Get.back(result: product);
       },
     );
   }
