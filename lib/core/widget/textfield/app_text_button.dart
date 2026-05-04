@@ -10,6 +10,7 @@ class AppTextButton extends StatelessWidget {
   final TextStyle? titleStyle;
   final double? width;
   final double? height;
+  final bool isLoading;
 
   const AppTextButton({
     super.key,
@@ -19,6 +20,7 @@ class AppTextButton extends StatelessWidget {
     this.titleStyle,
     this.width = 324,
     this.height = 54,
+    this.isLoading = false,
   });
 
   @override
@@ -27,14 +29,23 @@ class AppTextButton extends StatelessWidget {
       width: width,
       height: height,
       child: FilledButton(
-        onPressed: onTap,
+        onPressed: isLoading ? null : onTap,
         style: FilledButton.styleFrom(
           shadowColor: filledColor,
           backgroundColor: filledColor,
           shape: RoundedRectangleBorder(borderRadius: 6.radius),
           elevation: 1,
         ),
-        child: Text(title, style: AppTextStyle.white.s16.w600),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(title, style: AppTextStyle.white.s16.w600),
       ),
     );
   }

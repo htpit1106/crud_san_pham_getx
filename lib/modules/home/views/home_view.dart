@@ -1,6 +1,10 @@
+import 'package:crud_getx_demo/core/utils/utils.dart';
+import 'package:crud_getx_demo/data/model/entities/product_entity.dart';
 import 'package:crud_getx_demo/data/model/enums/product_sort_filter.dart';
 import 'package:crud_getx_demo/data/model/enums/product_status_filter.dart';
 import 'package:crud_getx_demo/modules/home/controllers/home_controller.dart';
+import 'package:crud_getx_demo/modules/home/widgets/cart_button.dart';
+import 'package:crud_getx_demo/modules/home/widgets/flying_item.dart';
 import 'package:crud_getx_demo/modules/home/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,19 +16,34 @@ class HomeView extends GetWidget<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách sản phẩm'),
-        actions: [_buildButtonLogout()],
+        title: _buildButtonLogout(),
+        actions: [
+          Obx(
+            () => CartButton(
+              badgeCount: controller.selectedCount.value,
+              cartKey: controller.cartKey,
+              onPressed: () async {
+                // await controller.onPressAddProduct();
+              },
+            ),
+          ),
+        ],
       ),
       body: _buildBody(),
     );
   }
 
   Widget _buildButtonLogout() {
-    return TextButton(
-      onPressed: () {
-        controller.onPressLogout();
-      },
-      child: const Text('Đăng xuất'),
+    return Row(
+      children: [
+        TextButton(
+          onPressed: () {
+            controller.onPressLogout();
+          },
+          child: const Text('Đăng xuất'),
+        ),
+        Text('Danh sách sản phẩm'),
+      ],
     );
   }
 
@@ -230,15 +249,60 @@ class HomeView extends GetWidget<HomeController> {
           }
 
           final item = controller.products[index];
-          return ProductCard(
-            onEdit: () => controller.onPressEditProduct(item),
-            item: item,
-            onDelete: () {
-              controller.onPressDeleted(item.id ?? -1);
-            },
-          );
+          final key = controller.getItemKey(item.id ?? -1);
+          return _buildProducItems(context: context, item: item, key: key);
         },
       );
     });
+  }
+
+  Widget _buildProducItems({
+    required BuildContext context,
+    required ProductEntity item,
+    required GlobalKey key,
+  }) {
+    return ProductCard(
+      itemKey: key,
+      onEdit: () => controller.onPressEditProduct(item),
+      item: item,
+      onDelete: () {
+        controller.onPressDeleted(item.id ?? -1);
+      },
+      onLongPress: () {
+        onLongTapProductCard(context: context, item: item, key: key);
+      },
+    );
+  }
+
+  void onLongTapProductCard({
+    required BuildContext context,
+    required ProductEntity item,
+    required GlobalKey key,
+  }) {
+    controller.onAddProductToCart();
+    final start = getPosition(key);
+
+    final end = getPosition(controller.cartKey);
+    print('start: $start, end: $end');
+    final overlay = Overlay.of(context);
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) {
+        return Positioned.fill(
+          child: Stack(
+            children: [
+              FlyingItem(
+                start: start,
+                end: end,
+                onComplete: () => entry.remove(),
+                child: const Icon(Icons.add, color: Colors.white, size: 22),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    overlay.insert(entry);
   }
 }

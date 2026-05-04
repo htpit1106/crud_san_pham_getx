@@ -16,7 +16,11 @@ abstract class ApiClient {
   @POST('/login')
   Future<ObjectResponse<TokenEntity>> login(@Body() Map<String, dynamic> body);
 
-  // Categories API
+  /// Categories API to manage product categories
+  /// Fetches data from `\categories`
+  /// /// Fetches data from `/categories`
+  /// and returns a list of [CategoryEntity].
+  /// and returns a list of [CategoryEntity].
   @GET('/categories')
   Future<ArrayResponse<CategoryEntity>> getCategories();
   @POST('/categories')
@@ -26,7 +30,7 @@ abstract class ApiClient {
   @PUT('/categories/{id}')
   Future<void> updateCategory(@Path('id') int id, @Body() CategoryEntity body);
 
-  // Products API
+  /// Products API
   @GET('/products')
   Future<ArrayResponse<ProductEntity>> getProducts({
     @Query('page') int page = 1,
@@ -39,5 +43,8 @@ abstract class ApiClient {
   @DELETE('/products/{id}')
   Future<void> deleteProduct(@Path('id') int id);
   @PUT('/products/{id}')
-  Future<void> updateProduct(@Path('id') int id, @Body() Map<String, dynamic> body);
+  Future<void> updateProduct(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
 }

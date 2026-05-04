@@ -19,4 +19,7 @@ class AssetConstants {
   static const String fingerPrint = "$_iconsBasePath/fingerprint.svg";
   //splash
   static const String splashAnimate = "$_animateBashPath/splash_animate.gif";
+
+  // home
+  static const String cart = "$_iconsBasePath/cart.svg";
 }

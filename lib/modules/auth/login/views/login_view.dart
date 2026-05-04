@@ -6,36 +6,54 @@ import 'package:crud_getx_demo/core/widget/button/app_password_text_field.dart';
 import 'package:crud_getx_demo/core/widget/button/app_text_field.dart';
 import 'package:crud_getx_demo/core/widget/image/app_svg_image.dart';
 import 'package:crud_getx_demo/core/widget/textfield/app_text_button.dart';
+import 'package:crud_getx_demo/data/model/enums/load_status.dart';
 import 'package:crud_getx_demo/modules/auth/login/controllers/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 
 class LoginView extends GetView<LoginController> {
+  const LoginView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(),
-      bottomNavigationBar: _buildGroupButton(),
+    return Stack(
+      children: [
+        Scaffold(body: _buildBody(), bottomNavigationBar: _buildGroupButton()),
+
+        Obx(() {
+          return controller.isLoading.value == LoadStatus.loading
+              ? Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withOpacity(0.3), // nền mờ
+                  child: const Center(child: CircularProgressIndicator()),
+                )
+              : const SizedBox.shrink();
+        }),
+      ],
     );
   }
 
   Widget _buildBody() {
-    return Padding(padding: 16.paddingAll, child: _buildLoginForm());
+    return _buildLoginForm();
   }
 
   Widget _buildLoginForm() {
-    return SingleChildScrollView(
-      child: AutofillGroup(
-        child: Form(
-          key: controller.formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              73.height,
-              _buildListInputField(),
-              32.height,
-              _buildLoginButton(),
-            ],
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: AutofillGroup(
+          child: Form(
+            key: controller.formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                73.height,
+                _buildListInputField(),
+                32.height,
+                _buildLoginButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -108,7 +126,7 @@ class LoginView extends GetView<LoginController> {
   Widget _buildLoginButton() {
     return AppTextButton(
       width: double.infinity,
-      title: "Đăng nhâp",
+      title: "Đăng nhập",
       onTap: () {
         controller.onSubmit();
       },

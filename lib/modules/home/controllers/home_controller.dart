@@ -30,7 +30,7 @@ class HomeController extends GetxController {
   final selectedActive = ProductStatusFilter.active.obs;
   final selectedSort = ProductSortOption.latest.obs;
   final selectedCategoryId = Rxn<int>();
-
+  final selectedCount = 0.obs;
   // controller
   final TextEditingController searchController = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -39,6 +39,9 @@ class HomeController extends GetxController {
   Timer? _categoryDebounce;
   Timer? _searchDebounce;
 
+  //global key
+  final cartKey = GlobalKey();
+  final itemKeys = <int, GlobalKey>{};
   @override
   void onInit() {
     super.onInit();
@@ -69,7 +72,7 @@ class HomeController extends GetxController {
     });
   }
 
-  Future<void> fetchProducts({bool reset = false}) async {
+  Future<void> fetchProducts({bool reset = true}) async {
     if (loadProductStatus.value.isLoading ||
         loadProductStatus.value.isLoadingMore) {
       return;
@@ -154,7 +157,7 @@ class HomeController extends GetxController {
   void onStatusFilterChanged(ProductStatusFilter? filter) {
     if (filter == null) return;
     selectedActive.value = filter;
-    fetchProducts(reset: true);
+    fetchProducts();
   }
 
   void onSortOptionChanged(ProductSortOption? option) {
@@ -170,7 +173,7 @@ class HomeController extends GetxController {
     selectedCategoryId.value = categoryId;
     _categoryDebounce?.cancel();
     _categoryDebounce = Timer(const Duration(milliseconds: 150), () {
-      fetchProducts(reset: true);
+      fetchProducts();
     });
   }
 
@@ -179,7 +182,7 @@ class HomeController extends GetxController {
       message: 'Bạn có chắc chắn muốn xóa sản phẩm này không?',
       textConfirm: 'Xóa',
       textCancel: 'Hủy',
-      onCancel: () => AppDialog.hide(),
+
       onConfirm: () async {
         final result = await productRepos.deleteProduct(id);
         result.fold(
@@ -188,7 +191,7 @@ class HomeController extends GetxController {
           },
           (response) {
             AppNotifier.showSuccess('Xóa sản phẩm thành công');
-            fetchProducts(reset: true);
+            fetchProducts();
           },
         );
       },
@@ -207,7 +210,7 @@ class HomeController extends GetxController {
   Future<void> onPressAddProduct() async {
     final result = await Get.toNamed(AppRoutes.addProduct);
     if (result == true) {
-      fetchProducts(reset: true);
+      fetchProducts();
     }
   }
 
@@ -217,7 +220,7 @@ class HomeController extends GetxController {
       arguments: {'product': product, 'categories': categories.toList()},
     );
     if (result == true) {
-      fetchProducts(reset: true);
+      fetchProducts();
     }
   }
 
@@ -246,5 +249,12 @@ class HomeController extends GetxController {
     isRefreshing.value = true;
     await fetchProducts(reset: true);
     isRefreshing.value = false;
+  }
+
+  GlobalKey getItemKey(int id) {
+    return itemKeys.putIfAbsent(id, () => GlobalKey());
+  }
+  void onAddProductToCart(){
+    selectedCount.value += 1;
   }
 }

@@ -36,3 +36,12 @@ Future<bool> checkInternetConnect() async {
     return false;
   }
 }
+
+Offset getPosition(GlobalKey key) {
+  final RenderBox? renderBox =
+      key.currentContext?.findRenderObject() as RenderBox?;
+  if (renderBox != null) {
+    return renderBox.localToGlobal(Offset.zero);
+  }
+  return Offset.zero;
+}

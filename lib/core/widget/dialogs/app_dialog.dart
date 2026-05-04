@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 
 class AppDialog {
-
   static void hide([dynamic result]) {
     if (Get.isDialogOpen ?? false) {
       Get.back(result: result);
@@ -103,8 +102,9 @@ class AppDialog {
                             constraints: const BoxConstraints(minHeight: 48),
                             child: TextButton(
                               onPressed: () {
+                                hide();
+
                                 if (onConfirm == null) {
-                                  hide();
                                   return;
                                 }
                                 onConfirm.call();

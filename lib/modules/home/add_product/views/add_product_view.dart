@@ -152,7 +152,6 @@ class AddProductView extends GetView<AddProductController> {
                     } else {
                       await controller.addProduct();
                     }
-                    Get.back(result: true);
                   },
                   child: const Text('Lưu'),
                 ),

@@ -6,76 +6,81 @@ class ProductCard extends StatelessWidget {
   final ProductEntity item;
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
-
+  final VoidCallback? onLongPress;
+  final GlobalKey? itemKey;
   const ProductCard({
     super.key,
     required this.item,
     required this.onDelete,
     this.onEdit,
+    this.onLongPress,
+    this.itemKey,
   });
   @override
   Widget build(BuildContext context) {
     final isActive = (item.status ?? 0) == 1;
-    return Material(
-      color: Colors.transparent,
+    return Card(
+      key: itemKey,
+      margin: const EdgeInsets.only(top: 8),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onEdit,
-        child: Card(
-          margin: const EdgeInsets.only(top: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildThumbnail(),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name ?? 'Chưa có tên',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+
+        onLongPress: onLongPress == null
+            ? null
+            : () {
+                onLongPress?.call();
+              },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildThumbnail(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name ?? 'Chưa có tên',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('SKU: ${item.code ?? '-'}'),
+                    Text('Giá: ${_formatPrice(item.price)} đ'),
+                    Text('Tồn kho: ${item.stock ?? 0}'),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        Chip(
+                          label: Text(isActive ? 'Active' : 'Inactive'),
+                          backgroundColor: isActive
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : Colors.orange.withValues(alpha: 0.16),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text('SKU: ${item.code ?? '-'}'),
-                      Text('Giá: ${_formatPrice(item.price)} đ'),
-                      Text('Tồn kho: ${item.stock ?? 0}'),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
+                        if (item.updatedAt != null)
                           Chip(
-                            label: Text(isActive ? 'Active' : 'Inactive'),
-                            backgroundColor: isActive
-                                ? Colors.green.withValues(alpha: 0.12)
-                                : Colors.orange.withValues(alpha: 0.16),
-                          ),
-                          if (item.updatedAt != null)
-                            Chip(
-                              label: Text(
-                                'Cập nhật: ${_formatDate(item.updatedAt!)}',
-                              ),
+                            label: Text(
+                              'Cập nhật: ${_formatDate(item.updatedAt!)}',
                             ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: onDelete,
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.redAccent,
-                  ),
-                  tooltip: 'Xoá',
-                ),
-              ],
-            ),
+              ),
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                tooltip: 'Xoá',
+              ),
+            ],
           ),
         ),
       ),
